@@ -21,5 +21,16 @@ def root():
     return render_template("lgbase.html",stage="Hello there!")
 
 
+@app.route("/internal/trackdevice/",methods=["POST"])
+def trackdevice():
+    if request.method == "POST":
+        body = request.json
+
+        logger.info(f"User agent: {body['user_agent']}")
+        logger.info(f"IP address: {body['ip']}")
+        lb.insert(body)
+    return jsonify({"status":"userreccorded"})
+
+
 if __name__ == "__main__":
     app.run(debug=True)
