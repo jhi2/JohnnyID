@@ -18,18 +18,37 @@
       justify-content: center;
       align-items: center;
     }
+    #left-media-content {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 50%;
+      height: 100%;
+    }
   </style>
-
+<script
+  src="https://js-de.sentry-cdn.com/7826562e2ee5c1f03edfefa0c4caf4cf.min.js"
+  crossorigin="anonymous"
+></script>
+<script>
+  Sentry.replayIntegration({
+  unblock: [".sentry-unblock", "[data-sentry-unblock]"],
+  unmask: [".sentry-unmask", "[data-sentry-unmask]"],
+});
+</script>
 </head>
 
 <body>
   <main>
     <div id="right-login-form">
     <article>
-        <h1>Access JohnnyTech.</h1>
-        <h4>{{stage}}</h3>
+
+        <h1 class="sentry-unmask">Access JohnnyTech.</h1>
+        <h4  class="sentry-unmask"></h4>{{stage}}</h3>
+        {{formhtml | safe}}
     </article>
     </div>
+    <div id="left-media-content"></div>
   </main>
 </body>
 </html>
