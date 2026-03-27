@@ -31,5 +31,21 @@
     </article>
     </div>
   </main>
+
+  <script
+    src="https://browser.sentry-cdn.com/10.46.0/bundle.tracing.replay.min.js"
+    crossorigin="anonymous"
+  ></script>
+  <script>
+    Sentry.init({
+      dsn: "https://7826562e2ee5c1f03edfefa0c4caf4cf@o4510961581162496.ingest.de.sentry.io/4511114260054096",
+      integrations: [
+        Sentry.replayIntegration(),
+      ],
+      tracesSampleRate: 1.0,
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
+    });
+  </script>
 </body>
 </html>
