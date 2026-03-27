@@ -26,16 +26,6 @@
       height: 100%;
     }
   </style>
-<script
-  src="https://js-de.sentry-cdn.com/7826562e2ee5c1f03edfefa0c4caf4cf.min.js"
-  crossorigin="anonymous"
-></script>
-<script>
-  Sentry.replayIntegration({
-  unblock: [".sentry-unblock", "[data-sentry-unblock]"],
-  unmask: [".sentry-unmask", "[data-sentry-unmask]"],
-});
-</script>
 </head>
 
 <body>
@@ -59,7 +49,10 @@
     Sentry.init({
       dsn: "https://7826562e2ee5c1f03edfefa0c4caf4cf@o4510961581162496.ingest.de.sentry.io/4511114260054096",
       integrations: [
-        Sentry.replayIntegration(),
+        Sentry.replayIntegration({
+          unblock: [".sentry-unblock", "[data-sentry-unblock]"],
+          unmask: [".sentry-unmask", "[data-sentry-unmask]"],
+        }),
       ],
       tracesSampleRate: 1.0,
       replaysSessionSampleRate: 0.1,
