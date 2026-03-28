@@ -46,12 +46,6 @@
   src="https://js-de.sentry-cdn.com/7826562e2ee5c1f03edfefa0c4caf4cf.min.js"
   crossorigin="anonymous"
 ></script>
-<script>
-  Sentry.replayIntegration({
-  unblock: [".sentry-unblock", "[data-sentry-unblock]"],
-  unmask: [".sentry-unmask", "[data-sentry-unmask]"],
-});
-</script>
 </head>
 
 <body>
@@ -60,7 +54,7 @@
     <article>
 
         <h1 class="sentry-unmask">Access JohnnyTech.</h1>
-        <h4  class="sentry-unmask"></h4>{{stage}}</h3>
+        <h4 class="sentry-unmask">{{stage}}</h4>
         {{formhtml | safe}}
     </article>
     </div>

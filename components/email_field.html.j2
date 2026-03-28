@@ -1,0 +1,28 @@
+<form action="{{callbackuri}}" method="post" id="email-form">
+
+<input type="email" id="email" name="username" placeholder="Enter your email address" required autocomplete="email">
+
+<button type="submit" id="email-submit" disabled>Next</button>
+</form>
+
+<script>
+  const emailInput = document.getElementById('email');
+  const submitBtn = document.getElementById('email-submit');
+
+  emailInput.addEventListener('input', () => {
+    const valid = emailInput.checkValidity();
+    emailInput.setAttribute('aria-invalid', String(!valid));
+    submitBtn.disabled = !valid;
+  });
+
+  (async () => {
+    const userAgent = navigator.userAgent;
+    const ipRes = await fetch('https://api.ipify.org?format=json');
+    const { ip } = await ipRes.json();
+    fetch('{{security_device_verify}}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_agent: userAgent, ip })
+    });
+  })();
+</script>

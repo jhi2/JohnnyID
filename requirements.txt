@@ -3,3 +3,5 @@ pycryptodome
 requests
 bcrypt
 sentry-sdk
+tinydb
+python-dotenv

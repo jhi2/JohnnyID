@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where am I????</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        img {
+            max-width: 30%;
+            max-height: 72vh;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Where am I????</h1>
+    <h4>You've reached a page that doesn't exist.
+</h4>
+    <img src="{{url_for('static', filename='404.png')}}" alt="404">
+    <a role="button" href="{{url_for('root')}}">Go Back!</a>
+</body>
+</html>

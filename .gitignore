@@ -23,6 +23,3 @@ dist/
 *.log
 *.tmp
 *.cache
-*.py[co]
-*.py[oa]
-*.py
