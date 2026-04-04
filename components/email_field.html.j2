@@ -1,10 +1,18 @@
 <form action="{{callbackuri}}" method="post" id="email-form">
-
-<input type="email" id="email" name="username" placeholder="Enter your email address" required autocomplete="email">
-
-<button type="submit" id="email-submit" disabled>Next</button>
+  <input type="email" id="email" name="username" placeholder="Enter your email address" required autocomplete="email">
+  <input type="hidden" name="newip" id="newip" value="false">
+  <input type="hidden" name="newua" id="newua" value="false">
+  <input type="hidden" name="redirect_uri" value="{{redirect_uri}}">
+  <button type="submit" id="email-submit" disabled>Next</button>
 </form>
-
+<div class="divider"><span>or</span></div>
+<div class="alt-actions">
+  <a href="{{google_oauth_endpoint}}?redirect_uri={{redirect_uri}}" role="button" class="outline contrast">Sign in with Google</a>
+  <a href="{{signup_endpoint}}" role="button" class="outline contrast">Create an account</a>
+</div>
+<p style="font-size: 0.8rem; text-align: center; margin-top: 1rem; opacity: 0.7;">
+  By signing in, you agree to our <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>.
+</p>
 <script>
   const emailInput = document.getElementById('email');
   const submitBtn = document.getElementById('email-submit');
@@ -19,10 +27,13 @@
     const userAgent = navigator.userAgent;
     const ipRes = await fetch('https://api.ipify.org?format=json');
     const { ip } = await ipRes.json();
-    fetch('{{security_device_verify}}', {
+    const res = await fetch('{{security_device_verify}}', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_agent: userAgent, ip })
     });
+    const data = await res.json();
+    document.getElementById('newip').value = String(data.newip);
+    document.getElementById('newua').value = String(data.newua);
   })();
 </script>

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <title>JohnnyID - Account</title>
+  <style>
+    body { margin: 0; }
+    .dashboard { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+    .dash-header h1 { margin: 0; }
+    .dash-header img { width: 36px; height: 36px; border-radius: 50%; margin-right: 0.75rem; }
+    .dash-header .left { display: flex; align-items: center; }
+    section { margin-bottom: 2rem; }
+    section h2 { font-size: 1.1rem; margin-bottom: 0.75rem; }
+    .success { background: #2ecc71; color: #fff; padding: 0.6rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; text-align: center; }
+    .error { background: #e74c3c; color: #fff; padding: 0.6rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; text-align: center; }
+    .history-table { font-size: 0.85rem; }
+    .history-table td, .history-table th { padding: 0.4rem 0.6rem; }
+    .apps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; }
+    .app-card { display: flex; flex-direction: column; align-items: center; padding: 1.5rem 1rem; border: 1px solid var(--pico-muted-border-color); border-radius: 12px; text-decoration: none; color: var(--pico-primary-color); transition: all 0.2s; }
+    .app-card:hover { border-color: var(--pico-primary); background: var(--pico-primary-background); transform: translateY(-2px); }
+    .app-card img { width: 48px; height: 48px; margin-bottom: 0.5rem; }
+    .app-card span { font-size: 0.85rem; }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--pico-muted-border-color); }
+    .tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 0.75rem 1rem; cursor: pointer; font-size: 1rem; opacity: 0.7; }
+    .tab:hover { opacity: 1; }
+    .tab.active { border-bottom-color: var(--pico-primary); opacity: 1; }
+    #theme-toggle { position: fixed; top: 1rem; right: 1rem; padding: 0.5rem 0.75rem; cursor: pointer; z-index: 10; width: auto; }
+    #theme-toggle svg { display: block; }
+    #modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+    #modal-overlay.open { display: flex; }
+    #modal-overlay .modal-content { background: var(--pico-background-color); padding: 2rem; border-radius: 8px; max-width: 400px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    button.danger { background: #e74c3c; color: #fff; }
+    button.danger:hover { background: #c0392b; }
+  </style>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+  <button id="theme-toggle" aria-label="Toggle theme">
+    <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="dashboard">
+    <div class="dash-header">
+      <div class="left">
+        <img src="{{ url_for('static', filename='Logo.png') }}" alt="JohnnyID">
+        <h1>JohnnyTech</h1>
+      </div>
+      <a href="{{signout_uri}}" role="button" class="outline contrast" style="margin:0">Sign out</a>
+    </div>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="apps" onclick="switchTab('apps')">Apps</button>
+      <button class="tab" data-tab="account" onclick="switchTab('account')">Account</button>
+    </nav>
+
+    {% if success %}<div class="success">{{success}}</div>{% endif %}
+    {% if error %}<div class="error">{{error}}</div>{% endif %}
+
+<div id="tab-apps" class="tab-content">
+      <section>
+        <h1>{{greeting}}, {{user.name.split()[0]}}</h1>
+        <div class="apps-grid">
+          {% for app in apps %}
+          <a href="{{app.url}}?token={{token}}" target="_blank" class="app-card">
+            <img src="{{app.logo}}" alt="{{app.name}}">
+            <span>{{app.name}}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+
+    <div id="tab-account" class="tab-content" style="display:none">
+      <section>
+        <h2>Profile</h2>
+        <p><strong>Name:</strong> {{user.name}}</p>
+        <p><strong>Email:</strong> {{user.email}}</p>
+      </section>
+
+      <section>
+        <h2>Change email</h2>
+        <button onclick="showModal('email')" class="outline">Change email</button>
+      </section>
+
+      <section>
+        <h2>Change password</h2>
+        <button onclick="showModal('password')" class="outline">Change password</button>
+      </section>
+
+      <section>
+        <h2>Danger zone</h2>
+        <button onclick="showModal('delete')" class="danger">Delete account</button>
+      </section>
+
+<section>
+        <h2>Two-factor authentication</h2>
+        <p><strong>Email verification:</strong> Enabled ({{user.email}})</p>
+        {% if user.twofa.totp %}
+        <p><strong>Authenticator app:</strong> Enabled</p>
+        <form action="{{totp_remove_uri}}" method="post">
+          <button type="submit" class="outline contrast">Remove authenticator</button>
+        </form>
+        {% else %}
+        <p><strong>Authenticator app:</strong> Not set up</p>
+        <form action="{{totp_setup_uri}}" method="post">
+          <button type="submit">Set up authenticator</button>
+        </form>
+{% endif %}
+      </section>
+
+      <section>
+        <h2>Login history</h2>
+        {% if history %}
+        <figure>
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>IP</th>
+                <th>Device</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for entry in history %}
+              <tr>
+                <td>{{entry.timestamp[:16].replace('T', ' ')}}</td>
+                <td>{{entry.ip}}</td>
+                <td>{{entry.user_agent[:60]}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </figure>
+        {% else %}
+        <p>No login history yet.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay">
+      <div class="modal-content">
+        <form method="post" id="modal-form">
+          <h3 id="modal-title"></h3>
+          <p id="modal-desc"></p>
+          <input type="text" id="modal-input" name="confirm_text" placeholder="" required style="display:none">
+          <input type="email" id="modal-email" name="new_email" placeholder="New email address" style="display:none">
+          <input type="password" id="modal-new-password" name="new_password" placeholder="New password" style="display:none">
+          <input type="password" id="modal-confirm-password" name="confirm" placeholder="Confirm new password" style="display:none">
+          <input type="password" id="modal-password" name="password" placeholder="Current password" required>
+          <button type="submit" id="modal-submit"></button>
+          <button type="button" onclick="closeModal()" class="outline contrast">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      const sun = document.getElementById('icon-sun');
+      const moon = document.getElementById('icon-moon');
+      function updateIcon(theme) {
+        sun.style.display = theme === 'dark' ? 'none' : 'block';
+        moon.style.display = theme === 'dark' ? 'block' : 'none';
+      }
+      updateIcon(document.documentElement.getAttribute('data-theme'));
+      toggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateIcon(next);
+      });
+    })();
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+      document.getElementById(`tab-${tab}`).style.display = 'block';
+    }
+
+    function showModal(action) {
+      const modal = document.getElementById('modal-overlay');
+      const title = document.getElementById('modal-title');
+      const desc = document.getElementById('modal-desc');
+      const input = document.getElementById('modal-input');
+      const emailInput = document.getElementById('modal-email');
+      const newPass = document.getElementById('modal-new-password');
+      const confirmPass = document.getElementById('modal-confirm-password');
+      const pass = document.getElementById('modal-password');
+      const submit = document.getElementById('modal-submit');
+      const form = document.getElementById('modal-form');
+
+emailInput.style.display = 'none';
+      newPass.style.display = 'none';
+      confirmPass.style.display = 'none';
+      input.style.display = 'none';
+      submit.classList.remove('danger');
+
+      if (action === 'email') {
+        title.textContent = 'Change email';
+        desc.textContent = 'Type "change email" to confirm, then enter your new email and current password.';
+        input.style.display = 'block';
+        input.placeholder = 'Type "change email"';
+        input.name = 'confirm_text';
+        pass.style.display = 'block';
+        emailInput.style.display = 'block';
+        form.action = '{{change_email_uri}}';
+        submit.textContent = 'Change email';
+      } else if (action === 'password') {
+        title.textContent = 'Change password';
+        desc.textContent = 'Type "change password" to confirm, then enter your new password and current password.';
+        input.style.display = 'block';
+        input.placeholder = 'Type "change password"';
+        input.name = 'confirm_text';
+        newPass.style.display = 'block';
+        confirmPass.style.display = 'block';
+        form.action = '{{change_password_uri}}';
+        submit.textContent = 'Change password';
+      } else if (action === 'delete') {
+        title.textContent = 'Delete account';
+        desc.textContent = 'Type "delete account" to confirm. This cannot be undone.';
+        input.style.display = 'block';
+        input.placeholder = 'Type "delete account"';
+        input.name = 'confirm_text';
+        pass.style.display = 'block';
+        form.action = '{{delete_account_uri}}';
+        submit.textContent = 'Delete account';
+        submit.classList.add('danger');
+      }
+      modal.classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+    }
+  </script>
+</body>
+</html>

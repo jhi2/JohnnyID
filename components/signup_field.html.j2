@@ -1,0 +1,102 @@
+<form action="{{callbackuri}}" method="post" id="signup-form">
+  <input type="text" id="name" name="name" placeholder="Your name" required autocomplete="name">
+  <input type="email" id="email" name="email" placeholder="Enter your email address" required autocomplete="email">
+  <div role="group">
+    <input type="password" id="password" name="password" placeholder="Choose a password" required minlength="8" autocomplete="new-password">
+    <button type="button" id="toggle-pw" aria-label="Toggle password visibility" style="padding:0.5rem 0.75rem">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+  </div>
+  <div id="strength-bar" style="height:6px;border-radius:3px;margin-bottom:0.25rem;background:var(--pico-muted-border-color)"></div>
+  <small id="strength-label" style="margin-bottom:0.75rem;display:block;color:var(--pico-muted-color)">Enter a password</small>
+  <div role="group">
+    <input type="password" id="confirm" name="confirm" placeholder="Confirm password" required minlength="8" autocomplete="new-password">
+    <button type="button" id="toggle-confirm" aria-label="Toggle confirm visibility" style="padding:0.5rem 0.75rem">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+  </div>
+  <button type="submit" id="signup-submit" disabled>Create account</button>
+</form>
+<div class="divider"><span>or</span></div>
+<div class="alt-actions">
+  <a href="{{login_endpoint}}" role="button" class="outline contrast">Already have an account? Sign in</a>
+</div>
+<script>
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const confirmInput = document.getElementById('confirm');
+  const submitBtn = document.getElementById('signup-submit');
+  const strengthBar = document.getElementById('strength-bar');
+  const strengthLabel = document.getElementById('strength-label');
+
+  const eyeOpen = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const eyeClosed = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+  function toggleVisibility(input, btn) {
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.innerHTML = eyeClosed;
+    } else {
+      input.type = 'password';
+      btn.innerHTML = eyeOpen;
+    }
+  }
+
+  document.getElementById('toggle-pw').addEventListener('click', () => toggleVisibility(passwordInput, document.getElementById('toggle-pw')));
+  document.getElementById('toggle-confirm').addEventListener('click', () => toggleVisibility(confirmInput, document.getElementById('toggle-confirm')));
+
+  function scorePassword(pw) {
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+    return score;
+  }
+
+  const strengthLevels = [
+    { label: 'Too short', color: 'var(--pico-muted-border-color)' },
+    { label: 'Weak', color: '#e74c3c' },
+    { label: 'Fair', color: '#e67e22' },
+    { label: 'Good', color: '#f1c40f' },
+    { label: 'Strong', color: '#2ecc71' },
+    { label: 'Very strong', color: '#27ae60' },
+  ];
+
+  emailInput.addEventListener('input', () => {
+    emailInput.setAttribute('aria-invalid', String(!emailInput.checkValidity()));
+    updateSubmit();
+  });
+
+  passwordInput.addEventListener('input', () => {
+    const pw = passwordInput.value;
+    const score = scorePassword(pw);
+    const level = strengthLevels[score];
+    const pct = pw.length === 0 ? 0 : Math.round((score / 5) * 100);
+    strengthBar.style.background = pw.length === 0
+      ? 'var(--pico-muted-border-color)'
+      : `linear-gradient(to right, ${level.color} ${pct}%, var(--pico-muted-border-color) ${pct}%)`;
+    strengthLabel.textContent = pw.length === 0 ? 'Enter a password' : level.label;
+    strengthLabel.style.color = pw.length === 0 ? 'var(--pico-muted-color)' : level.color;
+
+    const valid = pw.length >= 8;
+    passwordInput.setAttribute('aria-invalid', String(!valid));
+    confirmInput.setAttribute('pattern', pw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    updateSubmit();
+  });
+
+  confirmInput.addEventListener('input', () => {
+    const valid = confirmInput.value === passwordInput.value && passwordInput.value.length >= 8;
+    confirmInput.setAttribute('aria-invalid', String(!valid));
+    updateSubmit();
+  });
+
+  function updateSubmit() {
+    submitBtn.disabled = !(
+      emailInput.checkValidity() &&
+      passwordInput.value.length >= 8 &&
+      confirmInput.value === passwordInput.value
+    );
+  }
+</script>
