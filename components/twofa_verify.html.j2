@@ -1,0 +1,26 @@
+<form action="{{callbackuri}}" method="post" id="twofa-form">
+  <input type="hidden" name="email" value="{{email}}">
+  <input type="hidden" name="redirect_uri" value="{{redirect_uri}}">
+  <input type="text" id="code" name="code" placeholder="Enter 6-digit code" required autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" style="text-align:center;letter-spacing:0.3em;font-size:1.2rem">
+  {% if methods|length > 1 %}
+  <fieldset>
+    <legend>Verify with</legend>
+    {% for m in methods %}
+    <label>
+      <input type="radio" name="method" value="{{m}}" {% if loop.first %}checked{% endif %}>
+      {% if m == 'email' %}Email code{% elif m == 'totp' %}Authenticator app{% endif %}
+    </label>
+    {% endfor %}
+  </fieldset>
+  {% endif %}
+  {% if has_email %}
+  <button type="submit" name="action" value="send" formaction="{{send_uri}}" style="margin-bottom:0.5rem" class="outline contrast">Resend code</button>
+  {% endif %}
+  <button type="submit" name="action" value="verify">Verify</button>
+</form>
+<script>
+  const codeInput = document.getElementById('code');
+  codeInput.addEventListener('input', () => {
+    codeInput.value = codeInput.value.replace(/[^0-9]/g, '').slice(0, 6);
+  });
+</script>

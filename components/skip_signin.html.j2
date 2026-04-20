@@ -1,0 +1,11 @@
+<form action="{{yes_uri}}" method="post">
+  <input type="hidden" name="token" value="{{token}}">
+  <input type="hidden" name="redirect_uri" value="{{redirect_uri}}">
+  <input type="hidden" name="uid" value="{{uid}}">
+  <button type="submit">Yes</button>
+</form>
+<form action="{{no_uri}}" method="post">
+  <input type="hidden" name="token" value="{{token}}">
+  <input type="hidden" name="redirect_uri" value="{{redirect_uri}}">
+  <button type="submit">No</button>
+</form>

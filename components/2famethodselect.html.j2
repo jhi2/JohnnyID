@@ -1,0 +1,10 @@
+<p>2FA Methods:</p>
+<form action="{{ callbackuri }}" method="post">
+{% for method in methods %}
+  <label>
+    <input type="radio" name="2fa_method" value="{{ method }}" {% if loop.first %}checked{% endif %} required>
+    {{ method }}
+  </label>
+{% endfor %}
+  <button type="submit">Verify</button>
+</form>

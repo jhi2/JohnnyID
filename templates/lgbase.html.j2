@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,62 +8,168 @@
 
   <title>JohnnyID - {{stage}}</title>
   <style>
-    #right-login-form {
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: 50%;
-      height: 100%;
+    body {
+      margin: 0;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
     }
-    #left-media-content {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 50%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem;
-      background-color: #111318;
-      overflow: hidden;
+
+    .card-wrapper {
+      width: 100%;
+      max-width: 400px;
+      padding: 1.5rem;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: cardIn 0.35s ease-out forwards;
     }
-    #left-media-content img {
-      max-width: 100%;
-      max-height: 100%;
-      width: auto;
-      height: auto;
-      object-fit: contain;
+
+    @keyframes cardIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+    }
+
+    .brand h1 {
+      margin: 0.5rem 0 0;
+    }
+
+    .brand p {
+      margin: 0.25rem 0 0;
+      opacity: 0.7;
+    }
+
+    .error-banner {
+      background: #e74c3c;
+      color: #fff;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .success-banner {
+      background: #2ecc71;
+      color: #fff;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 1rem 0;
+      opacity: 0.5;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-top: 1px solid;
+    }
+
+    .divider span {
+      padding: 0 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .alt-actions a {
       display: block;
-      margin: auto;
-      border-radius: 1rem;
+      text-align: center;
+      margin-bottom: 0.5rem;
     }
+
+    #theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      z-index: 10;
+      width: auto;
+    }
+
+    #theme-toggle svg { display: block; }
   </style>
 
-<script
-  src="https://js-de.sentry-cdn.com/7826562e2ee5c1f03edfefa0c4caf4cf.min.js"
-  crossorigin="anonymous"
-></script>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <script
+    src="https://js-de.sentry-cdn.com/7826562e2ee5c1f03edfefa0c4caf4cf.min.js"
+    crossorigin="anonymous"
+  ></script>
 
 </head>
 
 <body>
-  <main>
-    <div id="right-login-form">
-    <article>
+  <button id="theme-toggle" aria-label="Toggle theme">
+    <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
 
-        <h1 class="sentry-unmask">Access JohnnyTech.</h1>
-        <h4 class="sentry-unmask">{{stage}}</h4>
-        {{formhtml | safe}}
+  <div class="card-wrapper">
+    <article>
+      <div class="brand">
+        <img src="{{ url_for('static', filename='Logo.png') }}" alt="JohnnyID">
+        <h1 class="sentry-unmask">JohnnyID</h1>
+        <p class="sentry-unmask">{{stage}}</p>
+      </div>
+      {% if error %}
+      <div class="error-banner">{{error}}</div>
+      {% endif %}
+      {% if success %}
+      <div class="success-banner">{{success}}</div>
+      {% endif %}
+      {{formhtml | safe}}
     </article>
-    </div>
-    <div id="left-media-content">
-      <img src="{{ url_for('static', filename='pdsh.png') }}" alt="PDSH">
-    </div>
-  </main>
+  </div>
+
+  <script>
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      const sun = document.getElementById('icon-sun');
+      const moon = document.getElementById('icon-moon');
+
+      function updateIcon(theme) {
+        sun.style.display = theme === 'dark' ? 'none' : 'block';
+        moon.style.display = theme === 'dark' ? 'block' : 'none';
+      }
+
+      updateIcon(document.documentElement.getAttribute('data-theme'));
+
+      toggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateIcon(next);
+      });
+    })();
+  </script>
 
   <script
     src="https://browser.sentry-cdn.com/10.46.0/bundle.tracing.replay.min.js"
